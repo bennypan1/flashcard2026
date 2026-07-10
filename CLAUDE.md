@@ -53,10 +53,35 @@ Cards are **nested inside decks** (each deck owns its card list; one deck is pra
 - Cross-deck cards (would move from nested cards to a shared card pool with `deckId` references).
 
 ## Commands
-_TBD — fill in once scaffolded (install, dev server, build, test, lint)._
+```
+npm install   # install dependencies
+npm run dev   # dev server (Vite, localhost:5173)
+npm run build # tsc type-check + Vite production build → dist/
+npm run preview # preview production build locally
+```
 
 ## Structure
-_TBD — document the folder layout here once it exists._
+```
+flashcard2026/
+├── index.html
+├── vite.config.ts
+├── tsconfig.json
+├── src/
+│   ├── main.tsx          # entry point
+│   ├── App.tsx           # root component; owns screen state + decks state
+│   ├── index.css         # all styles (no CSS modules)
+│   ├── types.ts          # Card, Deck, SRS interfaces
+│   ├── db.ts             # IndexedDB wrapper (getAllDecks, saveDeck, deleteDeck)
+│   ├── utils.ts          # generateId, shuffle (Fisher-Yates)
+│   └── components/
+│       ├── Home.tsx          # two-button home screen
+│       ├── DeckList.tsx      # deck list, parameterized by mode (practice|edit)
+│       ├── DeckEditor.tsx    # edit cards in a deck; rename/delete deck
+│       ├── CardEditor.tsx    # add/edit a single card
+│       └── PracticeSession.tsx  # multi-stage reveal session
+└── docs/
+    └── spec.md
+```
 
 ## Conventions
 - Keep the stored data shape stable and migration-friendly (ids, timestamps, clean schema) so it can lift into a hosted backend later without a rewrite.

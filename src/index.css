@@ -1,0 +1,534 @@
+/* ── Reset & base ─────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg:            #f0f4f8;
+  --surface:       #ffffff;
+  --primary:       #2563eb;
+  --primary-dark:  #1d4ed8;
+  --danger:        #dc2626;
+  --danger-dark:   #b91c1c;
+  --text:          #0f172a;
+  --text-muted:    #64748b;
+  --border:        #e2e8f0;
+  --ghost-bg:      #f1f5f9;
+  --ghost-hover:   #e2e8f0;
+  --shadow-sm:     0 1px 2px rgba(0,0,0,.06);
+  --shadow:        0 4px 6px -1px rgba(0,0,0,.07), 0 2px 4px -2px rgba(0,0,0,.05);
+  --shadow-lg:     0 10px 15px -3px rgba(0,0,0,.07), 0 4px 6px -4px rgba(0,0,0,.05);
+  --radius:        12px;
+  --radius-sm:     8px;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Loading ──────────────────────────────────────────── */
+.loading {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+/* ── Buttons ──────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .375rem;
+  padding: .625rem 1.25rem;
+  font-size: .9375rem;
+  font-weight: 500;
+  font-family: inherit;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background .12s, opacity .12s;
+  white-space: nowrap;
+}
+.btn:disabled { opacity: .55; cursor: not-allowed; }
+
+.btn-primary              { background: var(--primary);  color: #fff; }
+.btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
+
+.btn-ghost                { background: var(--ghost-bg); color: var(--text); }
+.btn-ghost:hover:not(:disabled)  { background: var(--ghost-hover); }
+
+.btn-danger               { background: var(--danger);   color: #fff; }
+.btn-danger:hover:not(:disabled) { background: var(--danger-dark); }
+
+.btn-large {
+  padding: .875rem 2rem;
+  font-size: 1.0625rem;
+  border-radius: var(--radius);
+  width: 100%;
+  max-width: 280px;
+}
+
+.btn-sm { padding: .375rem .75rem; font-size: .875rem; }
+
+/* Icon button (square, transparent) */
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 1.25rem;
+  color: var(--text-muted);
+  transition: background .12s;
+  flex-shrink: 0;
+}
+.btn-icon:hover { background: var(--ghost-bg); color: var(--text); }
+
+.btn-icon-danger { color: var(--danger); }
+.btn-icon-danger:hover { background: #fef2f2; }
+
+/* Circle nav button (practice screen) */
+.btn-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  background: var(--ghost-bg);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.125rem;
+  color: var(--text);
+  transition: background .12s, transform .1s;
+}
+.btn-circle:hover  { background: var(--ghost-hover); }
+.btn-circle:active { transform: scale(.93); }
+
+.btn-circle-primary           { background: var(--primary); color: #fff; }
+.btn-circle-primary:hover     { background: var(--primary-dark); }
+
+/* ── Inputs ───────────────────────────────────────────── */
+.input {
+  width: 100%;
+  padding: .625rem .875rem;
+  font-size: .9375rem;
+  font-family: inherit;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+  transition: border-color .15s;
+}
+.input:focus { border-color: var(--primary); }
+
+.input-inline   { width: auto; flex: 1; min-width: 0; }
+.input-chinese  { font-size: 1.375rem; }
+.input-textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+
+/* ── Screen shell ─────────────────────────────────────── */
+.screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 1rem 2rem;
+}
+
+.screen-header {
+  display: flex;
+  align-items: center;
+  gap: .625rem;
+  padding: .875rem 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1.25rem;
+  min-height: 3.5rem;
+}
+
+.screen-header h2 {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Home ─────────────────────────────────────────────── */
+.home {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+
+.app-title {
+  font-size: 3.5rem;
+  font-weight: 700;
+  letter-spacing: -.03em;
+  font-family: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
+  margin-bottom: .375rem;
+}
+
+.app-subtitle {
+  color: var(--text-muted);
+  font-size: .9375rem;
+  margin-bottom: 2.5rem;
+}
+
+.home-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .75rem;
+  width: 100%;
+}
+
+/* ── Deck list ────────────────────────────────────────── */
+.deck-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.deck-item {
+  display: flex;
+  align-items: stretch;
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.deck-row-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.125rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  min-width: 0;
+}
+.deck-row-btn:hover { background: var(--ghost-bg); }
+
+.deck-name {
+  font-size: .9375rem;
+  font-weight: 500;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.deck-meta {
+  font-size: .8125rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.deck-item .btn-icon { margin-right: .5rem; align-self: center; }
+
+.empty-state {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: .9375rem;
+  padding: 2.5rem 1rem;
+}
+
+.add-section { margin-top: 1.25rem; }
+
+.add-form {
+  display: flex;
+  flex-direction: column;
+  gap: .75rem;
+}
+
+.row-actions {
+  display: flex;
+  gap: .5rem;
+  flex-wrap: wrap;
+}
+
+/* ── Deck editor ──────────────────────────────────────── */
+.rename-row {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.deck-title-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: .375rem;
+  padding: .25rem .375rem;
+  border-radius: var(--radius-sm);
+  transition: background .12s;
+  flex: 1;
+  text-align: left;
+}
+.deck-title-btn:hover { background: var(--ghost-bg); }
+
+.edit-glyph {
+  font-size: .8em;
+  opacity: .35;
+  transition: opacity .15s;
+}
+.deck-title-btn:hover .edit-glyph { opacity: .7; }
+
+.card-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.card-item {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: .875rem 1.125rem;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow .12s;
+}
+.card-item:hover { box-shadow: var(--shadow); }
+
+.card-preview-top {
+  display: flex;
+  align-items: baseline;
+  gap: .75rem;
+  margin-bottom: .2rem;
+}
+
+.card-preview-english {
+  font-size: .9375rem;
+  font-weight: 500;
+}
+
+.card-preview-chinese {
+  font-size: 1.125rem;
+  color: var(--text-muted);
+  font-family: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
+}
+
+.card-preview-pinyin {
+  font-size: .8125rem;
+  color: var(--text-muted);
+}
+
+.deck-editor-footer {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: .75rem;
+  flex-wrap: wrap;
+}
+
+/* ── Card form ────────────────────────────────────────── */
+.card-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: .375rem;
+}
+
+.form-label {
+  font-size: .875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.label-hint {
+  font-weight: 400;
+  font-size: .8125rem;
+}
+
+/* ── Practice session ─────────────────────────────────── */
+.practice-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.practice-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .875rem 1rem;
+  border-bottom: 1px solid var(--border);
+  gap: .5rem;
+  flex-shrink: 0;
+}
+
+.practice-deck-name {
+  font-size: .9375rem;
+  font-weight: 500;
+  flex: 1;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.practice-progress {
+  font-size: .875rem;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+  min-width: 3.25rem;
+  text-align: right;
+}
+
+/* Card tap area */
+.practice-card-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1.25rem 1rem;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.practice-faces {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.practice-face {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 1.375rem 1.5rem;
+  box-shadow: var(--shadow);
+}
+
+.practice-face-new {
+  box-shadow: var(--shadow-lg);
+  animation: slide-in .18s ease;
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+.face-label {
+  display: block;
+  font-size: .6875rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: .5rem;
+}
+
+.face-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.face-value-chinese {
+  font-size: 3.25rem;
+  font-weight: 300;
+  line-height: 1.15;
+  font-family: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', 'Hiragino Sans GB', serif;
+}
+
+.practice-hint {
+  font-size: .8125rem;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.practice-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem 1.5rem;
+  flex-shrink: 0;
+}
+
+/* Practice center (empty/done states) */
+.practice-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+
+.done-badge {
+  width: 4.5rem;
+  height: 4.5rem;
+  border-radius: 50%;
+  background: #dcfce7;
+  color: #16a34a;
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: .5rem;
+}
+
+.done-heading {
+  font-size: 1.875rem;
+  font-weight: 700;
+  letter-spacing: -.02em;
+}
+
+.done-sub {
+  color: var(--text-muted);
+  margin-bottom: .5rem;
+}
