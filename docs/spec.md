@@ -1,14 +1,8 @@
 # Flashcard App — Project Specification
 
-## Purpose of this document
-Reference spec for a multi-stage-reveal flashcard app, written to give an LLM full context on the intended design. Treat everything under **v1 scope** as what to build now, and **Reserved for later** as future direction the data model must stay compatible with but that should *not* be implemented yet.
-
-## The core idea
-A flashcard web app whose defining feature is **multi-stage reveal**: each card reveals its content in ordered stages rather than a single front/back flip. The default sequence is English → pinyin → Chinese character, so a learner sees the meaning, then the pronunciation, then the written character. The app targets Chinese vocabulary, but the reveal mechanism is general and not tied to those three fields. Web first; a mobile app may follow and should share the same data model.
-
 ## Terminology
 - **Card** — one flashcard. Holds structured fields (see schema).
-- **Deck** — a named collection of cards; the unit a user practices at a time. (Earlier drafts called this a "lesson"; the app uses "deck" everywhere.)
+- **Deck** — a named collection of cards; the unit a user practices at a time.
 - **Face / stage** — one reveal step of a card. A card is revealed one face at a time in a defined order.
 - **Session** — one practice run over a single deck.
 
@@ -87,16 +81,13 @@ At (card `i`, stage `s`):
 - else → session complete ("Done").
 
 ### Back behavior
-"Back" is the exact inverse of forward. (This corrects a bug in the prototype where stepping back to a previous card left it at its first face instead of fully revealed.)
+"Back" is the exact inverse of forward.
 - if `s > 0` → `(i, s-1)` — hide the most recently revealed face.
 - else if `i > 0` → `(i-1, L-1)` — previous card, **fully revealed**.
 - else → no-op (already at the very start).
 
 ### Shuffle
-Produce the session's card order with a Fisher–Yates shuffle over the card `id`s. Shuffle the session order only — never the stored deck. Use a plain temp-variable swap (the prototype's `splice`-based swap is unnecessarily slow and opaque).
-
-### Progress display
-Show progress during a session (e.g. current position and how many cards remain), based on the session's card list, not on mutating the deck.
+Produce the session's card order with a Fisher–Yates shuffle over the card `id`s. Shuffle the session order only — never the stored deck.
 
 ## UI / screens (two-button home flow)
 
@@ -111,14 +102,8 @@ The mode must be visually unambiguous (distinct header text) so practice-select 
 
 ## Storage
 
-- **v1:** store everything in the browser — **IndexedDB** preferred (structured data, room to grow), or localStorage if the dataset stays small. No backend required.
-- **Design for migration now:** stable ids, timestamps, and the clean schema above should be in place from the start so the data can lift into a hosted backend later without a rewrite.
-
-## Framework / implementation notes
-
-- Build as a standard **DOM web app (likely React)** — buttons, deck lists, and card-editing forms belong in HTML/CSS/JS, not on a drawing canvas.
-- A ProcessingJS / Khan-Academy canvas prototype exists; **carry over only the interaction model** (click/space/→ to advance, ← to go back, multi-stage reveal). Do *not* carry over canvas drawing, string-parsing of cards, or in-place shuffling of stored data.
-- The reveal card in the DOM is just showing/hiding elements per stage.
+- **v1:** browser-local IndexedDB. No backend required.
+- Stable ids, timestamps, and the clean schema are in place so the data can lift into a hosted backend later without a rewrite.
 
 ## Reserved for later (do not build in v1; keep data compatible)
 

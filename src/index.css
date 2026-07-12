@@ -318,14 +318,56 @@ body {
 }
 
 .card-item {
+  display: flex;
+  align-items: center;
+  gap: .625rem;
+  cursor: pointer;
+}
+
+.card-item-card {
+  flex: 1;
+  min-width: 0;
   background: var(--surface);
   border-radius: var(--radius);
   padding: .875rem 1.125rem;
-  cursor: pointer;
   box-shadow: var(--shadow-sm);
   transition: box-shadow .12s;
 }
-.card-item:hover { box-shadow: var(--shadow); }
+.card-item:hover .card-item-card { box-shadow: var(--shadow); }
+
+.card-item-selected {
+  background: #eff6ff;
+  box-shadow: 0 0 0 2px var(--primary);
+}
+
+.card-item-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-checkbox {
+  width: 1.125rem;
+  height: 1.125rem;
+  border: 1.5px solid #94a3b8;
+  border-radius: 3px;
+  background: var(--surface);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .6rem;
+  font-weight: 700;
+  color: transparent;
+  cursor: pointer;
+  transition: background .12s, border-color .12s;
+}
+.card-checkbox:hover { border-color: var(--primary); }
+
+.card-checkbox-checked {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
 
 .card-preview-top {
   display: flex;
@@ -350,10 +392,20 @@ body {
   color: var(--text-muted);
 }
 
-.deck-editor-footer {
-  margin-top: 1.5rem;
+.deck-editor-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg);
+  margin: 0 -1rem;
+  padding: 0 1rem;
+}
+
+.deck-editor-toolbar {
   display: flex;
-  gap: .75rem;
+  align-items: center;
+  gap: .5rem;
+  padding: .5rem 0 .75rem;
   flex-wrap: wrap;
 }
 
@@ -531,4 +583,122 @@ body {
 .done-sub {
   color: var(--text-muted);
   margin-bottom: .5rem;
+}
+
+/* ── Notes button & panel ─────────────────────────────── */
+.note-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  padding: .2rem .55rem;
+  font-size: .75rem;
+  font-weight: 500;
+  font-family: inherit;
+  background: var(--ghost-bg);
+  border: none;
+  border-radius: 100px;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: background .12s, color .12s;
+  white-space: nowrap;
+}
+.note-btn:hover  { background: var(--ghost-hover); color: var(--text); }
+.note-btn-active { background: var(--ghost-hover); color: var(--text); }
+
+.note-panel {
+  font-size: .875rem;
+  color: var(--text-muted);
+  background: var(--ghost-bg);
+  border-radius: var(--radius-sm);
+  padding: .625rem .875rem;
+  line-height: 1.5;
+  margin-top: .625rem;
+}
+
+/* Row that holds pinyin + note button in deck editor cards */
+.card-preview-bottom {
+  display: flex;
+  align-items: center;
+  gap: .625rem;
+  flex-wrap: wrap;
+}
+
+/* Note button + panel area in practice session */
+.practice-note-row {
+  padding: 0 1.25rem .5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .5rem;
+  flex-shrink: 0;
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.note-edit-block {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.note-edit-actions {
+  display: flex;
+  gap: .5rem;
+}
+
+.note-textarea {
+  background: var(--surface);
+  border-color: var(--primary);
+  color: var(--text);
+  font-size: .875rem;
+}
+
+.btn-primary-muted {
+  background: #bfdbfe;
+  color: #1e40af;
+}
+.btn-primary-muted:hover { background: #93c5fd; }
+
+.btn-solid-gray {
+  background: #64748b;
+  color: #fff;
+}
+.btn-solid-gray:hover { background: #475569; }
+
+/* ── Confirm dialog ───────────────────────────────────── */
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  padding: 1.5rem;
+}
+
+.dialog-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  padding: 1.5rem;
+  max-width: 360px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.dialog-message {
+  font-size: .9375rem;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: .75rem;
+  justify-content: flex-end;
 }

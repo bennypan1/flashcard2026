@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Card } from '../types';
 import { generateId } from '../utils';
+import { ConfirmDialog } from './ConfirmDialog';
 
 interface Props {
   card: Card | null; // null = new card
@@ -16,6 +17,7 @@ export function CardEditor({ card, onSave, onCancel, onDelete }: Props) {
   const [notes, setNotes] = useState(card?.notes ?? '');
 
   const isNew = card === null;
+  const [showConfirm, setShowConfirm] = useState(false);
 
   async function handleSave() {
     const saved: Card = isNew
@@ -39,11 +41,6 @@ export function CardEditor({ card, onSave, onCancel, onDelete }: Props) {
     await onSave(saved);
   }
 
-  async function handleDelete() {
-    if (onDelete && window.confirm('Delete this card?')) {
-      await onDelete();
-    }
-  }
 
   return (
     <div className="screen">
@@ -102,9 +99,18 @@ export function CardEditor({ card, onSave, onCancel, onDelete }: Props) {
         <button className="btn btn-primary" onClick={handleSave}>Save</button>
         <button className="btn btn-ghost" onClick={onCancel}>Cancel</button>
         {onDelete && (
-          <button className="btn btn-danger" onClick={handleDelete}>Delete</button>
+          <button className="btn btn-danger" onClick={() => setShowConfirm(true)}>Delete</button>
         )}
       </div>
+
+      {showConfirm && (
+        <ConfirmDialog
+          message="Delete this card? This cannot be undone."
+          confirmLabel="Delete Card"
+          onConfirm={async () => { setShowConfirm(false); await onDelete!(); }}
+          onCancel={() => setShowConfirm(false)}
+        />
+      )}
     </div>
   );
 }

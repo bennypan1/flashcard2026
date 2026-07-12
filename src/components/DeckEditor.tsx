@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Deck, Card } from '../types';
 import { CardEditor } from './CardEditor';
+import { ConfirmDialog } from './ConfirmDialog';
 
 interface Props {
   deck: Deck;
@@ -18,6 +19,36 @@ export function DeckEditor({ deck, onBack, onSave, onDelete }: Props) {
   const [editing, setEditing] = useState<Editing>(null);
   const [renaming, setRenaming] = useState(false);
   const [pendingName, setPendingName] = useState('');
+  const [showNoteFor, setShowNoteFor] = useState<string | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [confirm, setConfirm] = useState<{ message: string; confirmLabel: string; onConfirm: () => void } | null>(null);
+
+  function toggleSelect(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function cancelSelect() {
+    setSelectedIds(new Set());
+  }
+
+  function deleteSelected() {
+    const n = selectedIds.size;
+    if (n === 0) return;
+    setConfirm({
+      message: `Delete ${n} card${n !== 1 ? 's' : ''}? This cannot be undone.`,
+      confirmLabel: `Delete ${n} card${n !== 1 ? 's' : ''}`,
+      onConfirm: async () => {
+        await onSave({ ...deck, cards: deck.cards.filter((c) => !selectedIds.has(c.id)) });
+        cancelSelect();
+        setConfirm(null);
+      },
+    });
+  }
 
   function startRename() {
     setPendingName(deck.name);
@@ -50,10 +81,15 @@ export function DeckEditor({ deck, onBack, onSave, onDelete }: Props) {
     setEditing(null);
   }
 
-  async function handleDeleteDeck() {
-    if (window.confirm(`Delete deck "${deck.name}"? This cannot be undone.`)) {
-      await onDelete();
-    }
+  function handleDeleteDeck() {
+    setConfirm({
+      message: `Delete deck "${deck.name}"? This cannot be undone.`,
+      confirmLabel: 'Delete Deck',
+      onConfirm: async () => {
+        await onDelete();
+        setConfirm(null);
+      },
+    });
   }
 
   // Show card editor when adding or editing a card
@@ -78,58 +114,112 @@ export function DeckEditor({ deck, onBack, onSave, onDelete }: Props) {
 
   return (
     <div className="screen">
-      <div className="screen-header">
-        <button className="btn-icon" onClick={onBack} title="Back">‹</button>
-        {renaming ? (
-          <div className="rename-row">
-            <input
-              autoFocus
-              className="input input-inline"
-              value={pendingName}
-              onChange={(e) => setPendingName(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') commitRename();
-                if (e.key === 'Escape') cancelRename();
-              }}
-            />
-            <button className="btn btn-sm btn-primary" onClick={commitRename}>Save</button>
-            <button className="btn btn-sm btn-ghost" onClick={cancelRename}>Cancel</button>
-          </div>
-        ) : (
-          <button className="deck-title-btn" onClick={startRename} title="Rename deck">
-            {deck.name} <span className="edit-glyph">✏</span>
-          </button>
-        )}
+      {/* Sticky header: deck name row + toolbar row */}
+      <div className="deck-editor-sticky">
+        <div className="screen-header">
+          <button className="btn-icon" onClick={onBack} title="Back">‹</button>
+          {renaming ? (
+            <div className="rename-row">
+              <input
+                autoFocus
+                className="input input-inline"
+                value={pendingName}
+                onChange={(e) => setPendingName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') commitRename();
+                  if (e.key === 'Escape') cancelRename();
+                }}
+              />
+              <button className="btn btn-sm btn-primary" onClick={commitRename}>Save</button>
+              <button className="btn btn-sm btn-ghost" onClick={cancelRename}>Cancel</button>
+            </div>
+          ) : (
+            <button className="deck-title-btn" onClick={startRename} title="Rename deck">
+              {deck.name} <span className="edit-glyph">✏</span>
+            </button>
+          )}
+        </div>
+
+        <div className="deck-editor-toolbar">
+          {selectedIds.size > 0 ? (
+            <>
+              <button className="btn btn-sm btn-danger" onClick={deleteSelected}>
+                Delete ({selectedIds.size})
+              </button>
+              <button className="btn btn-sm btn-solid-gray" onClick={cancelSelect}>
+                Cancel
+              </button>
+            </>
+          ) : (
+            <>
+              <button className="btn btn-sm btn-primary" onClick={() => setEditing({ mode: 'new' })}>
+                + Add Card
+              </button>
+              <button className="btn btn-sm btn-danger" onClick={handleDeleteDeck}>
+                Delete Deck
+              </button>
+            </>
+          )}
+        </div>
       </div>
 
       {deck.cards.length === 0 ? (
         <p className="empty-state">No cards yet. Add one below.</p>
       ) : (
         <ul className="card-list">
-          {deck.cards.map((card) => (
-            <li
-              key={card.id}
-              className="card-item"
-              onClick={() => setEditing({ mode: 'edit', cardId: card.id })}
-            >
-              <div className="card-preview-top">
-                <span className="card-preview-english">{card.english}</span>
-                <span className="card-preview-chinese">{card.chinese}</span>
-              </div>
-              <span className="card-preview-pinyin">{card.pinyin}</span>
-            </li>
-          ))}
+          {deck.cards.map((card) => {
+            const isSelected = selectedIds.has(card.id);
+            return (
+              <li
+                key={card.id}
+                className="card-item"
+                onClick={() => selectedIds.size > 0 ? toggleSelect(card.id) : setEditing({ mode: 'edit', cardId: card.id })}
+              >
+                <span
+                  className={`card-checkbox${isSelected ? ' card-checkbox-checked' : ''}`}
+                  onClick={(e) => { e.stopPropagation(); toggleSelect(card.id); }}
+                >
+                  {isSelected && '✓'}
+                </span>
+                <div className={`card-item-card${isSelected ? ' card-item-selected' : ''}`}>
+                  <div className="card-item-body">
+                    <div className="card-preview-top">
+                      <span className="card-preview-english">{card.english}</span>
+                      <span className="card-preview-chinese">{card.chinese}</span>
+                    </div>
+                    <div className="card-preview-bottom">
+                      <span className="card-preview-pinyin">{card.pinyin}</span>
+                      {card.notes && (
+                        <button
+                          className={`note-btn${showNoteFor === card.id ? ' note-btn-active' : ''}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowNoteFor((prev) => (prev === card.id ? null : card.id));
+                          }}
+                        >
+                          📝 Note
+                        </button>
+                      )}
+                    </div>
+                    {showNoteFor === card.id && (
+                      <p className="note-panel">{card.notes}</p>
+                    )}
+                  </div>
+                </div>
+              </li>
+            );
+          })}
         </ul>
       )}
 
-      <div className="deck-editor-footer">
-        <button className="btn btn-primary" onClick={() => setEditing({ mode: 'new' })}>
-          + Add Card
-        </button>
-        <button className="btn btn-danger" onClick={handleDeleteDeck}>
-          Delete Deck
-        </button>
-      </div>
+      {confirm && (
+        <ConfirmDialog
+          message={confirm.message}
+          confirmLabel={confirm.confirmLabel}
+          onConfirm={confirm.onConfirm}
+          onCancel={() => setConfirm(null)}
+        />
+      )}
     </div>
   );
 }

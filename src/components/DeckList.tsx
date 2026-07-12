@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Deck } from '../types';
 import { generateId } from '../utils';
+import { ConfirmDialog } from './ConfirmDialog';
 
 interface Props {
   mode: 'practice' | 'edit';
@@ -14,6 +15,7 @@ interface Props {
 export function DeckList({ mode, decks, onBack, onSelectDeck, onSaveDeck, onDeleteDeck }: Props) {
   const [adding, setAdding] = useState(false);
   const [newName, setNewName] = useState('');
+  const [confirm, setConfirm] = useState<{ message: string; onConfirm: () => void } | null>(null);
 
   async function handleAdd() {
     const name = newName.trim();
@@ -63,11 +65,10 @@ export function DeckList({ mode, decks, onBack, onSelectDeck, onSaveDeck, onDele
               <button
                 className="btn-icon btn-icon-danger"
                 title="Delete deck"
-                onClick={() => {
-                  if (window.confirm(`Delete "${deck.name}"? This cannot be undone.`)) {
-                    onDeleteDeck(deck.id);
-                  }
-                }}
+                onClick={() => setConfirm({
+                  message: `Delete "${deck.name}"? This cannot be undone.`,
+                  onConfirm: () => { onDeleteDeck(deck.id); setConfirm(null); },
+                })}
               >
                 ✕
               </button>
@@ -101,6 +102,15 @@ export function DeckList({ mode, decks, onBack, onSelectDeck, onSaveDeck, onDele
             <button className="btn btn-primary" onClick={() => setAdding(true)}>+ Add Deck</button>
           )}
         </div>
+      )}
+
+      {confirm && (
+        <ConfirmDialog
+          message={confirm.message}
+          confirmLabel="Delete Deck"
+          onConfirm={confirm.onConfirm}
+          onCancel={() => setConfirm(null)}
+        />
       )}
     </div>
   );

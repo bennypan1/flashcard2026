@@ -90,6 +90,7 @@ export function App() {
         <PracticeSession
           deck={deck}
           onExit={() => setScreen({ type: 'deck-list', mode: 'practice' })}
+          onSaveDeck={handleSaveDeck}
         />
       );
     }
