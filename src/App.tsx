@@ -1,6 +1,13 @@
 import { useState, useEffect } from 'react';
 import type { Deck } from './types';
-import { getAllDecks, saveDeck, deleteDeck as dbDeleteDeck } from './db';
+import {
+  getAllDecks,
+  saveDeck,
+  deleteDeck as dbDeleteDeck,
+  setActiveStore,
+  localStore,
+  remoteStore,
+} from './db';
 import { Home } from './components/Home';
 import { DeckList } from './components/DeckList';
 import { DeckEditor } from './components/DeckEditor';
@@ -18,6 +25,12 @@ export function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Pick the storage backend based on auth state. Auth isn't built yet, so
+    // every user is a guest → localStore. When auth lands, this becomes
+    // setActiveStore(session ? remoteStore : localStore). (spec.md → Backend)
+    const signedIn = false;
+    setActiveStore(signedIn ? remoteStore : localStore);
+
     getAllDecks()
       .then((all) => setDecks(all.sort((a, b) => a.createdAt - b.createdAt)))
       .finally(() => setLoading(false));
