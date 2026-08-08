@@ -2,12 +2,25 @@
 
 This file is operational context for Claude Code — commands, structure, and hard invariants only. It intentionally does not restate the design: for schema, algorithms, UI behavior, and rationale, see `docs/spec.md`, which is the single source of truth. If this file and spec.md ever disagree, spec.md wins — fix this file to match, don't fork the detail across both.
 
+## Learning mode (branch `learn` — HARD RULE, overrides default behavior)
+On the `learn` branch, the goal is for Benny to learn to write this code, not to ship features.
+
+**Do not write, edit, or generate application code on this branch.** Benny types all of it.
+- Explain concepts, answer "why does this work this way", give hints, and review code he wrote.
+- When he's stuck, give the smallest hint that unblocks him — never the finished code.
+- If he asks for a full implementation, offer a hint or a walkthrough instead, and say why.
+- Exceptions, only when asked explicitly: editing `docs/learning.md` (incl. the progress
+  checklist and log), and non-app files like docs and config.
+- This rule does **not** apply on `main` or other branches.
+
+Plan, ladder, and progress: `docs/learning.md`.
+
 ## Project
 A multi-stage-reveal flashcard web app for learning Chinese vocabulary. Each card reveals in ordered stages (default English → pinyin → Chinese) instead of a single front/back flip. Web first; a mobile app may follow and must share the same data model.
 
 ## Status
 - **Frontend (v1): complete and building cleanly.** Structured card/deck model, IndexedDB storage, deck list (practice/edit modes), deck + card CRUD, multi-stage reveal practice with shuffle and correct back behavior.
-- **Backend (accounts + sync): designed, not yet implemented.** Full design in `docs/spec.md` → Backend. No Supabase project, tables, RPC, or auth screen exist in this repo yet — don't assume any backend file (`supabase/`, migrations, auth UI) is present until this line says otherwise.
+- **Backend (accounts + sync): schema written, not wired up.** Full design in `docs/spec.md` → Backend. `supabase/migrations/20260801000000_init_backend.sql` defines the `decks`/`cards` tables, RLS policies, and the `save_deck` RPC. Not yet applied to a live Supabase project; `remoteStore` in `db.ts` is still a stub and no auth UI exists.
 
 ## Tech stack
 - **Frontend:** React, TypeScript, Vite.
@@ -53,10 +66,15 @@ flashcard2026/
 │       ├── CardEditor.tsx    # add/edit a single card
 │       ├── PracticeSession.tsx  # multi-stage reveal session
 │       └── ConfirmDialog.tsx # reusable in-app confirmation modal
+├── supabase/
+│   ├── README.md
+│   └── migrations/
+│       └── 20260801000000_init_backend.sql  # tables, RLS, save_deck RPC (not applied yet)
 └── docs/
-    └── spec.md
+    ├── spec.md
+    └── learning.md   # learning plan for branch `learn` — ladder, exercises, progress
 ```
-No backend directory exists yet (no `supabase/`, no server code, no auth screen component). Update this tree once any of that is scaffolded — don't let it drift into aspirational documentation.
+No server code and no auth screen component exist yet. Update this tree once any of that is scaffolded — don't let it drift into aspirational documentation.
 
 ## v1 scope vs. later
 - **Implemented:** everything under Frontend in Status above.
