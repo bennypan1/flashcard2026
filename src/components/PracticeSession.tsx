@@ -167,62 +167,60 @@ export function PracticeSession({ deck, onExit, onSaveDeck }: Props) {
       </div>
 
       {/* Note button + panel — outside card-area so it doesn't trigger advance */}
-      {card.notes && (
-        <div className="practice-note-row">
-          <button
-            className={`note-btn${noteCardId === card.id ? ' note-btn-active' : ''}`}
-            onClick={() => {
-              if (noteCardId === card.id) {
-                setNoteCardId(null);
-              } else {
-                setNoteCardId(card.id);
-                setPendingNote(card.notes);
-              }
-            }}
-          >
-            📝 Note
-          </button>
-          {noteCardId === card.id && (() => {
-            const hasChanges = pendingNote !== card.notes;
-            return (
-              <div className="note-edit-block">
-                <textarea
-                  ref={(el) => {
-                    if (el) {
-                      el.focus();
-                      el.selectionStart = el.selectionEnd = el.value.length;
-                    }
+      <div className="practice-note-row">
+        <button
+          className={`note-btn${noteCardId === card.id ? ' note-btn-active' : ''}`}
+          onClick={() => {
+            if (noteCardId === card.id) {
+              setNoteCardId(null);
+            } else {
+              setNoteCardId(card.id);
+              setPendingNote(card.notes);
+            }
+          }}
+        >
+          📝 Note
+        </button>
+        {noteCardId === card.id && (() => {
+          const hasChanges = pendingNote !== card.notes;
+          return (
+            <div className="note-edit-block">
+              <textarea
+                ref={(el) => {
+                  if (el) {
+                    el.focus();
+                    el.selectionStart = el.selectionEnd = el.value.length;
+                  }
+                }}
+                className="input input-textarea note-textarea"
+                value={pendingNote}
+                onChange={(e) => setPendingNote(e.target.value)}
+              />
+              <div className="note-edit-actions">
+                <button
+                  className={`btn btn-sm ${hasChanges ? 'btn-primary' : 'btn-primary-muted'}`}
+                  disabled={!hasChanges}
+                  onClick={async () => {
+                    const updatedCards = deck.cards.map((c) =>
+                      c.id === card.id ? { ...card, notes: pendingNote.trim() } : c
+                    );
+                    await onSaveDeck({ ...deck, cards: updatedCards });
+                    setNoteCardId(null);
                   }}
-                  className="input input-textarea note-textarea"
-                  value={pendingNote}
-                  onChange={(e) => setPendingNote(e.target.value)}
-                />
-                <div className="note-edit-actions">
-                  <button
-                    className={`btn btn-sm ${hasChanges ? 'btn-primary' : 'btn-primary-muted'}`}
-                    disabled={!hasChanges}
-                    onClick={async () => {
-                      const updatedCards = deck.cards.map((c) =>
-                        c.id === card.id ? { ...card, notes: pendingNote.trim() } : c
-                      );
-                      await onSaveDeck({ ...deck, cards: updatedCards });
-                      setNoteCardId(null);
-                    }}
-                  >
-                    Save
-                  </button>
-                  <button
-                    className="btn btn-sm btn-solid-gray"
-                    onClick={() => setNoteCardId(null)}
-                  >
-                    Cancel
-                  </button>
-                </div>
+                >
+                  Save
+                </button>
+                <button
+                  className="btn btn-sm btn-solid-gray"
+                  onClick={() => setNoteCardId(null)}
+                >
+                  Cancel
+                </button>
               </div>
-            );
-          })()}
-        </div>
-      )}
+            </div>
+          );
+        })()}
+      </div>
 
       {/* Nav buttons */}
       <div className="practice-nav">

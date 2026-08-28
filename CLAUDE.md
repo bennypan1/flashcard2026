@@ -7,11 +7,14 @@ A multi-stage-reveal flashcard web app for learning Chinese vocabulary. Each car
 
 ## Status
 - **Frontend (v1): complete and building cleanly.** Structured card/deck model, IndexedDB storage, deck list (practice/edit modes), deck + card CRUD, multi-stage reveal practice with shuffle and correct back behavior.
-- **Backend (accounts + sync): designed, not yet implemented.** Full design in `docs/spec.md` → Backend. No Supabase project, tables, RPC, or auth screen exist in this repo yet — don't assume any backend file (`supabase/`, migrations, auth UI) is present until this line says otherwise.
+- **Backend (accounts + sync): schema written, not yet wired up.** Full design in `docs/spec.md` → Backend.
+  - **Exists:** `supabase/migrations/20260801000000_init_backend.sql` (tables, RLS policies, `save_deck` RPC) and the `db.ts` storage seam — `StorageBackend` interface, `localStore` (live), `remoteStore` (stub that throws), `setActiveStore()`.
+  - **Does not exist:** a live Supabase project the migration has been applied to, the `@supabase/supabase-js` dependency, any `remoteStore` implementation, an auth screen, and the first-sign-up local→remote import prompt.
+  - `App.tsx` hard-codes `const signedIn = false`, so every user is still a guest on `localStore`. `remoteStore` is unreachable at runtime.
 
 ## Tech stack
 - **Frontend:** React, TypeScript, Vite.
-- **Storage:** IndexedDB for guests (built); Supabase Postgres + Auth for signed-in accounts (designed, not built) — see spec.md → Backend.
+- **Storage:** IndexedDB for guests (built); Supabase Postgres + Auth for signed-in accounts (SQL written, client not wired) — see spec.md → Backend.
 
 ## Hard invariants (do not violate — see spec.md for the "why")
 1. Cards are structured objects, never delimited strings — one field per property. (spec → Data model)
@@ -29,7 +32,7 @@ npm run dev     # dev server (Vite, localhost:5173)
 npm run build   # tsc type-check + Vite production build → dist/
 npm run preview # preview production build locally
 ```
-Backend commands (Supabase CLI, migrations, etc.) will be added here once the backend is scaffolded.
+Backend (Supabase CLI — project setup, applying migrations, auth settings): see `supabase/README.md`. There are no npm scripts for it; no Supabase project has been created or linked yet.
 
 ## Structure
 ```
@@ -42,9 +45,9 @@ flashcard2026/
 │   ├── App.tsx           # root component; owns screen state + decks state
 │   ├── index.css         # all styles (no CSS modules)
 │   ├── types.ts          # Card, Deck, SRS interfaces
-│   ├── db.ts             # storage interface: getAllDecks, saveDeck, deleteDeck.
-│   │                      # Currently IndexedDB only (= localStore). Will grow a
-│   │                      # Supabase-backed remoteStore — see spec.md → Backend.
+│   ├── db.ts             # storage interface: getAllDecks, saveDeck, deleteDeck,
+│   │                      # delegating to the active StorageBackend. localStore
+│   │                      # (IndexedDB) is live; remoteStore is a throwing stub.
 │   ├── utils.ts          # generateId, shuffle (Fisher-Yates)
 │   └── components/
 │       ├── Home.tsx          # two-button home screen
@@ -53,14 +56,18 @@ flashcard2026/
 │       ├── CardEditor.tsx    # add/edit a single card
 │       ├── PracticeSession.tsx  # multi-stage reveal session
 │       └── ConfirmDialog.tsx # reusable in-app confirmation modal
+├── supabase/
+│   ├── README.md         # project setup, applying migrations, auth settings
+│   └── migrations/
+│       └── 20260801000000_init_backend.sql  # decks/cards tables, RLS, save_deck RPC
 └── docs/
     └── spec.md
 ```
-No backend directory exists yet (no `supabase/`, no server code, no auth screen component). Update this tree once any of that is scaffolded — don't let it drift into aspirational documentation.
+There is still no server code and no auth screen component — `supabase/` is SQL only, and nothing in `src/` imports a Supabase client. Update this tree as that changes; don't let it drift into aspirational documentation.
 
 ## v1 scope vs. later
 - **Implemented:** everything under Frontend in Status above.
-- **Designed, not yet built:** accounts + sync backend — see spec.md → Backend.
+- **Partially built:** accounts + sync backend — SQL schema and the `db.ts` seam exist; the Supabase client, auth UI, and `remoteStore` implementation do not. See Status above and spec.md → Backend.
 - **Reserved for later, do NOT build yet:** SRS scheduling, graded review, extra reveal faces, OAuth sign-in, native mobile app, cross-deck cards. Full list + rationale: spec.md → Reserved for later.
 
 ## Conventions
