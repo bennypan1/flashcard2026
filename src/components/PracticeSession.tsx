@@ -179,7 +179,7 @@ export function PracticeSession({ deck, onExit, onSaveDeck }: Props) {
             }
           }}
         >
-          📝 Note
+          {card.notes ? '📝 View Note' : '📝 Add Note'}
         </button>
         {noteCardId === card.id && (() => {
           const hasChanges = pendingNote !== card.notes;
