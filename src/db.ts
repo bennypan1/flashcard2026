@@ -1,10 +1,10 @@
 import type { Deck } from './types';
 
 // Storage interface (spec.md → Backend → Storage interface).
-// db.ts exposes a stable shape — getAllDecks / saveDeck / deleteDeck — backed by
-// one of two interchangeable implementations, selected by App.tsx based on auth
-// state. No component ever talks to IndexedDB or Supabase directly; they only
-// call the three exported functions below, which delegate to the active store.
+// getAllDecks / saveDeck / deleteDeck are the app's only storage entry points.
+// They delegate to whichever StorageBackend is active — localStore for guests,
+// remoteStore for signed-in accounts — so no component talks to IndexedDB or
+// Supabase directly.
 export interface StorageBackend {
   getAllDecks(): Promise<Deck[]>;
   saveDeck(deck: Deck): Promise<void>;
@@ -12,7 +12,7 @@ export interface StorageBackend {
 }
 
 // ---------------------------------------------------------------------------
-// localStore — browser-local IndexedDB. Used for guests. (Unchanged behavior.)
+// localStore — browser-local IndexedDB. The guest backend.
 // ---------------------------------------------------------------------------
 
 const DB_NAME = 'flashcard2026';
@@ -63,10 +63,9 @@ export const localStore: StorageBackend = {
 };
 
 // ---------------------------------------------------------------------------
-// remoteStore — Supabase-backed. Used once signed in; becomes the sole source
-// of truth for that account (no offline cache, no dual-write, no merge logic).
-// Designed but NOT YET IMPLEMENTED — see spec.md → Backend. Kept as a stub so
-// the seam exists and the selector below is real; the guest path never hits it.
+// remoteStore — Supabase-backed. The signed-in backend, and the sole source of
+// truth for an account: no offline cache, no dual-write, no merge logic.
+// Not implemented — every method throws. See spec.md → Backend for the design.
 // ---------------------------------------------------------------------------
 
 function notImplemented(): never {
@@ -87,10 +86,9 @@ export const remoteStore: StorageBackend = {
 
 // ---------------------------------------------------------------------------
 // Active store selection.
-// App.tsx picks the backend based on auth state via setActiveStore(). Defaults
-// to localStore (guest) — the only path reachable today, since auth isn't built
-// yet. The three exported functions always delegate to whichever store is active,
-// so every call site is unaffected by which implementation is in use.
+// App.tsx calls setActiveStore() with the backend that matches the auth state.
+// localStore is the default; the exported functions below read `active` on
+// every call, so switching stores takes effect immediately.
 // ---------------------------------------------------------------------------
 
 let active: StorageBackend = localStore;

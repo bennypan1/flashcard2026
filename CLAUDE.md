@@ -7,14 +7,14 @@ A multi-stage-reveal flashcard web app for learning Chinese vocabulary. Each car
 
 ## Status
 - **Frontend (v1): complete and building cleanly.** Structured card/deck model, IndexedDB storage, deck list (practice/edit modes), deck + card CRUD, multi-stage reveal practice with shuffle and correct back behavior.
-- **Backend (accounts + sync): schema written, not yet wired up.** Full design in `docs/spec.md` → Backend.
-  - **Exists:** `supabase/migrations/20260801000000_init_backend.sql` (tables, RLS policies, `save_deck` RPC) and the `db.ts` storage seam — `StorageBackend` interface, `localStore` (live), `remoteStore` (stub that throws), `setActiveStore()`.
-  - **Does not exist:** a live Supabase project the migration has been applied to, the `@supabase/supabase-js` dependency, any `remoteStore` implementation, an auth screen, and the first-sign-up local→remote import prompt.
+- **Backend (accounts + sync): database live, client not yet wired.** Full design in `docs/spec.md` → Backend.
+  - **Exists:** a live Supabase project with `supabase/migrations/20260801000000_init_backend.sql` applied (tables, RLS policies, `save_deck` RPC) as of 2026-08-30; the repo is linked to it via the Supabase CLI (`supabase/.temp/`, gitignored). Also the `db.ts` storage seam — `StorageBackend` interface, `localStore` (live), `remoteStore` (stub that throws), `setActiveStore()`.
+  - **Does not exist:** the `@supabase/supabase-js` dependency, a Supabase client module, `.env.local`, any `remoteStore` implementation, an auth screen, and the first-sign-up local→remote import prompt.
   - `App.tsx` hard-codes `const signedIn = false`, so every user is still a guest on `localStore`. `remoteStore` is unreachable at runtime.
 
 ## Tech stack
 - **Frontend:** React, TypeScript, Vite.
-- **Storage:** IndexedDB for guests (built); Supabase Postgres + Auth for signed-in accounts (SQL written, client not wired) — see spec.md → Backend.
+- **Storage:** IndexedDB for guests (built); Supabase Postgres + Auth for signed-in accounts (database live, client not wired) — see spec.md → Backend.
 
 ## Hard invariants (do not violate — see spec.md for the "why")
 1. Cards are structured objects, never delimited strings — one field per property. (spec → Data model)
@@ -32,7 +32,9 @@ npm run dev     # dev server (Vite, localhost:5173)
 npm run build   # tsc type-check + Vite production build → dist/
 npm run preview # preview production build locally
 ```
-Backend (Supabase CLI — project setup, applying migrations, auth settings): see `supabase/README.md`. There are no npm scripts for it; no Supabase project has been created or linked yet.
+Backend (Supabase CLI — project setup, applying migrations, auth settings): see `supabase/README.md`. There are no npm scripts for it. The project is created and linked; apply new migrations with `supabase db push` and check applied state with `supabase migration list`.
+
+**Migrations are append-only.** `20260801000000_init_backend.sql` has been applied to the live database — never edit it. Schema changes go in a new file with a later timestamp.
 
 ## Structure
 ```

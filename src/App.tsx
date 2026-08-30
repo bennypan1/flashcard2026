@@ -25,9 +25,9 @@ export function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Pick the storage backend based on auth state. Auth isn't built yet, so
-    // every user is a guest → localStore. When auth lands, this becomes
-    // setActiveStore(session ? remoteStore : localStore). (spec.md → Backend)
+    // Select the storage backend for the current auth state. signedIn is
+    // hard-coded false, so every user is a guest on localStore and the
+    // remoteStore branch is unreachable. (spec.md → Backend)
     const signedIn = false;
     setActiveStore(signedIn ? remoteStore : localStore);
 

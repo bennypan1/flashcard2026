@@ -15,13 +15,16 @@ version-controlled SQL. See `docs/spec.md` → Backend for the design.
    (save it), choose the nearest region, and create it. Give it ~2 min to spin up.
 3. Grab your keys from **Project Settings → API**:
    - **Project URL** (e.g. `https://abcd1234.supabase.co`)
-   - **anon public** key
+   - **publishable** key (`sb_publishable_...`) — formerly called the **anon public**
+     key; older projects may still show a JWT-style `eyJ...` value instead. Never
+     the **secret** key (`sb_secret_...`, formerly `service_role`): it bypasses RLS
+     and must never reach the browser.
    These go in a gitignored `.env.local` at the repo root when we wire the client:
    ```
    VITE_SUPABASE_URL=...
-   VITE_SUPABASE_ANON_KEY=...
+   VITE_SUPABASE_PUBLISHABLE_KEY=...
    ```
-   (The anon key is safe to ship in the client — row-level security is what
+   (The publishable key is safe to ship in the client — row-level security is what
    protects the data, not key secrecy.)
 
 ## Applying the migration
