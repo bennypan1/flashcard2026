@@ -1,4 +1,5 @@
-import type { Deck } from './types';
+import type { Card, Deck, SRS } from './types';
+import { supabase } from './supabase';
 
 // Storage interface (spec.md → Backend → Storage interface).
 // getAllDecks / saveDeck / deleteDeck are the app's only storage entry points.
@@ -68,18 +69,66 @@ export const localStore: StorageBackend = {
 // Not implemented — every method throws. See spec.md → Backend for the design.
 // ---------------------------------------------------------------------------
 
+// Row shapes as Postgres actually returns them, which differ from Card/Deck in
+// two ways: snake_case keys, and timestamptz columns arriving as ISO-8601
+// strings ("2026-09-04T12:00:00+00:00") rather than the epoch-millis numbers
+// our types use. Both gaps are closed by the mappers below.
+interface CardRow {
+  id: string;
+  deck_id: string;
+  english: string;
+  pinyin: string;
+  chinese: string;
+  notes: string;
+  created_at: string;
+  last_reviewed: string | null;
+  srs: SRS;
+}
+
+interface DeckRow {
+  id: string;
+  user_id: string;
+  name: string;
+  reveal_order: string[];
+  created_at: string;
+  last_practiced: string | null;
+  cards: CardRow[]; // populated by the embedded select in getAllDecks
+}
+
 function notImplemented(): never {
   throw new Error('remoteStore is not implemented yet — see spec.md → Backend');
 }
 
+// Row → app type. Pure functions, no I/O: given a row, produce the shape the
+// rest of the app already understands.
+function rowToCard(_row: CardRow): Card {
+  return notImplemented();
+}
+
+function rowToDeck(_row: DeckRow): Deck {
+  return notImplemented();
+}
+
 export const remoteStore: StorageBackend = {
-  async getAllDecks() {
+  // One round trip, not N+1: PostgREST embeds children when you name them in
+  // the select, so decks and their cards come back together as DeckRow[].
+  // Cards are ordered by created_at (there is deliberately no position column);
+  // ordering an embedded table needs the referencedTable option.
+  async getAllDecks(): Promise<Deck[]> {
     return notImplemented();
   },
-  async saveDeck(_deck: Deck) {
+
+  // save_deck(jsonb) does the whole diff-and-upsert in one transaction. It
+  // expects the Deck exactly as the app already holds it — camelCase keys,
+  // epoch-millis timestamps — so this direction needs no mapping at all.
+  // Ownership comes from auth.uid() server-side; never send user_id.
+  async saveDeck(_deck: Deck): Promise<void> {
     return notImplemented();
   },
-  async deleteDeck(_id: string) {
+
+  // Delete the deck row only. Cards go with it via the deck_id foreign key's
+  // on delete cascade — a second call would be redundant.
+  async deleteDeck(_id: string): Promise<void> {
     return notImplemented();
   },
 };
