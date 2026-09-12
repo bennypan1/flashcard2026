@@ -99,14 +99,37 @@ function notImplemented(): never {
   throw new Error('remoteStore is not implemented yet — see spec.md → Backend');
 }
 
-// Row → app type. Pure functions, no I/O: given a row, produce the shape the
-// rest of the app already understands.
-function rowToCard(_row: CardRow): Card {
-  return notImplemented();
+function toMillis(timeString: string | null): number | null {
+  if (timeString == null) {
+    return null
+  }
+  return Date.parse(timeString)
 }
 
-function rowToDeck(_row: DeckRow): Deck {
-  return notImplemented();
+// Row → app type. Pure functions, no I/O: given a row, produce the shape the
+// rest of the app already understands.
+function rowToCard(row: CardRow): Card {
+  return {
+    "id": row.id,
+    "english": row.english,
+    "pinyin": row.pinyin,
+    "chinese": row.chinese,
+    "notes": row.notes,
+    "createdAt": Date.parse(row.created_at),
+    "lastReviewed": toMillis(row.last_reviewed),
+    "srs": row.srs
+  }
+}
+
+function rowToDeck(row: DeckRow): Deck {
+  return {
+    "id": row.id,
+    "name": row.name,
+    "revealOrder": row.reveal_order,
+    "cards": row.cards.map(rowToCard),
+    "createdAt": Date.parse(row.created_at),
+    "lastPracticed": toMillis(row.last_practiced)
+  }
 }
 
 export const remoteStore: StorageBackend = {
