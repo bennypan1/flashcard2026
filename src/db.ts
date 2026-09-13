@@ -66,7 +66,6 @@ export const localStore: StorageBackend = {
 // ---------------------------------------------------------------------------
 // remoteStore — Supabase-backed. The signed-in backend, and the sole source of
 // truth for an account: no offline cache, no dual-write, no merge logic.
-// Not implemented — every method throws. See spec.md → Backend for the design.
 // ---------------------------------------------------------------------------
 
 // Row shapes as Postgres actually returns them, which differ from Card/Deck in
@@ -93,10 +92,6 @@ interface DeckRow {
   created_at: string;
   last_practiced: string | null;
   cards: CardRow[]; // populated by the embedded select in getAllDecks
-}
-
-function notImplemented(): never {
-  throw new Error('remoteStore is not implemented yet — see spec.md → Backend');
 }
 
 function toMillis(timeString: string | null): number | null {
@@ -138,21 +133,37 @@ export const remoteStore: StorageBackend = {
   // Cards are ordered by created_at (there is deliberately no position column);
   // ordering an embedded table needs the referencedTable option.
   async getAllDecks(): Promise<Deck[]> {
-    return notImplemented();
+    const {error, data} = await supabase
+      .from('decks')
+      .select('*, cards(*)');
+    if (error) {
+      throw new Error('Error getting decks: ' + error.message);
+    }
+    return data.map(rowToDeck)
   },
 
   // save_deck(jsonb) does the whole diff-and-upsert in one transaction. It
   // expects the Deck exactly as the app already holds it — camelCase keys,
   // epoch-millis timestamps — so this direction needs no mapping at all.
   // Ownership comes from auth.uid() server-side; never send user_id.
-  async saveDeck(_deck: Deck): Promise<void> {
-    return notImplemented();
+  async saveDeck(deck: Deck): Promise<void> {
+    const {error} = await supabase
+      .rpc('save_deck', { deck });
+    if (error) {
+      throw new Error('Error saving deck: ' + error.message);
+    }
   },
 
   // Delete the deck row only. Cards go with it via the deck_id foreign key's
   // on delete cascade — a second call would be redundant.
-  async deleteDeck(_id: string): Promise<void> {
-    return notImplemented();
+  async deleteDeck(id: string): Promise<void> {
+    const {error} = await supabase
+      .from('decks')
+      .delete()
+      .eq('id', id);
+    if (error) {
+      throw new Error('Error deleting deck: ' + error.message);
+    }
   },
 };
 
