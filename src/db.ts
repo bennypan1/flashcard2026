@@ -135,7 +135,9 @@ export const remoteStore: StorageBackend = {
   async getAllDecks(): Promise<Deck[]> {
     const {error, data} = await supabase
       .from('decks')
-      .select('*, cards(*)');
+      .select('*, cards(*)')
+      .order('created_at', { referencedTable: 'cards' })
+      .order('id', { referencedTable: 'cards' });
     if (error) {
       throw new Error('Error getting decks: ' + error.message);
     }
